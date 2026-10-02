@@ -1,0 +1,6 @@
+.env
+.venv/
+testing.py
+__pycache__/
+.DS_Store
+notes.txt
