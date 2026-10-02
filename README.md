@@ -102,17 +102,35 @@ Make sure `.env` is included in `.gitignore` so the API key is never pushed to G
 
 ## Usage
 
+The bot works with a `.txt` file containing your notes.
+
+**Note:** This project does not include a default `notes.txt` file. You can create your own `.txt` file containing the notes you want the bot to answer questions about.
+
+For example:
+
+```text
+my_notes.txt
+```
+
+Your notes can be organized into separate paragraphs, which the system will use as individual chunks.
+
 Run the program:
 
 ```bash
 python AI_note_Q&A_bot.py
 ```
 
-The program will ask for the name of the note file:
+The program will ask for the name of your note file:
 
 ```text
 Welcome to the Note Q&A Bot!
 Enter the name of the note file:
+```
+
+Enter your file name:
+
+```text
+Enter the name of the note file: my_notes.txt
 ```
 
 After loading the notes, you can ask questions about their contents.
