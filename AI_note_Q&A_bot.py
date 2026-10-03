@@ -1,7 +1,20 @@
 import gemini_client as gc
 import numpy as np
+from pypdf import PdfReader
+import os
 
-
+def pdf_opener(file_name):
+    try:
+        reader = PdfReader(file_name)
+        text = ""
+        for page in reader.pages:
+            page_text = page.extract_text()
+            page_text = page_text.replace("\n", " ")
+            text += page_text + "\n\n"
+    except FileNotFoundError:
+        print("File not found.")
+        return None
+    return text
 
 def note_opener(file_name):
     try:
@@ -15,14 +28,15 @@ def note_opener(file_name):
 def get_chunks(text):
     if text is None:
         print("No text to chunk.")
-        return
+        return None
     chunks = text.split("\n\n")
-    return chunks
+    filterd_chunks = [chunk for chunk in chunks if chunk.strip() != ""]
+    return filterd_chunks
 
 def build_chunk_dicts(text):
     chunks = get_chunks(text)
     if chunks is None:
-        return
+        return None
     else:
         dic_chunks = [{"Index": index , "chunk":chunk}for index,chunk in enumerate(chunks)]
         return dic_chunks  
@@ -52,9 +66,25 @@ def menu():
         return None
     return choice
 
+def file_extension_extractor(file_name):
+    extension = os.path.splitext(file_name)[1]
+    return extension
+
+def file_opener(file_name):
+    extension = file_extension_extractor(file_name)
+    match extension:
+        case ".txt":
+            text = note_opener(file_name)
+        case ".pdf":
+            text = pdf_opener(file_name)
+        case _:
+            print("Unsupported file type.")
+            return None
+    return text
+
 def main():
     file_name = input("Enter the name of the note file: ")
-    text = note_opener(file_name)
+    text = file_opener(file_name)
     dic_chunks = build_chunk_dicts(text)
     only_chunk = [chunk["chunk"] for chunk in dic_chunks]
     embeddings = gc.get_embedding(only_chunk)
