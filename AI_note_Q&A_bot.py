@@ -2,6 +2,7 @@ import gemini_client as gc
 import numpy as np
 from pypdf import PdfReader
 import os
+import json
 
 def pdf_opener(file_name):
     try:
@@ -82,13 +83,55 @@ def file_opener(file_name):
             return None
     return text
 
+def save_dic_chunks_to_json(dic_chunks, file_name):
+    with open(file_name, 'w') as json_file:
+        json.dump(dic_chunks, json_file, indent=4)
+
+def load_dic_chunks_from_json(file_name):
+    try:
+        with open(file_name, 'r') as json_file:
+            dic_chunks = json.load(json_file)
+    except FileNotFoundError:
+        return None
+    return dic_chunks
+
+def save_file_name(file_name):
+    with open("file_name.json", 'w') as f:
+        json.dump(file_name, f)
+
+def load_file_name():
+    try:
+        with open("file_name.json", 'r') as f:
+            file_name = json.load(f)
+    except FileNotFoundError:
+        return None
+    return file_name
+
+def new_chunks_creator():
+        file_name = input("Enter the name of the note file: ")
+        save_file_name(file_name)
+        text = file_opener(file_name)
+        dic_chunks = build_chunk_dicts(text)
+        only_chunk = [chunk["chunk"] for chunk in dic_chunks]
+        embeddings = gc.get_embedding(only_chunk)
+        new_dic_chunks = [{"Index":dic_chunks[i]["Index"], "chunk": dic_chunks[i]["chunk"], "embedding": embeddings[i]} for i in range(len(dic_chunks))]
+        save_dic_chunks_to_json(new_dic_chunks, "dic_chunks.json")
+
+        return new_dic_chunks
 def main():
-    file_name = input("Enter the name of the note file: ")
-    text = file_opener(file_name)
-    dic_chunks = build_chunk_dicts(text)
-    only_chunk = [chunk["chunk"] for chunk in dic_chunks]
-    embeddings = gc.get_embedding(only_chunk)
-    new_dic_chunks = [{"Index":dic_chunks[i]["Index"], "chunk": dic_chunks[i]["chunk"], "embedding": embeddings[i]} for i in range(len(dic_chunks))]
+    loaded_dic_chunks = load_dic_chunks_from_json("dic_chunks.json")
+    file_name = load_file_name()
+    if loaded_dic_chunks is None or file_name is None:
+            new_dic_chunks = new_chunks_creator()
+    else:
+        choice = input(f"Found existing  data for file '{file_name}'. Do you want to use it? (y/n): ")
+        if choice.lower() == "y":
+            new_dic_chunks = loaded_dic_chunks
+        elif choice.lower() == "n":
+            new_dic_chunks = new_chunks_creator()
+        else:
+            print("Invalid choice. Exiting the program.")
+            return
     while True:
         choice = menu()
         if choice == 1:
