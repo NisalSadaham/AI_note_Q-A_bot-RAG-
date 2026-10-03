@@ -3,6 +3,8 @@ import numpy as np
 from pypdf import PdfReader
 import os
 import json
+import vector_store as vs
+
 
 def pdf_opener(file_name):
     try:
@@ -42,20 +44,15 @@ def build_chunk_dicts(text):
         dic_chunks = [{"Index": index , "chunk":chunk}for index,chunk in enumerate(chunks)]
         return dic_chunks  
 
-def find_most_relevant(question, dic_chunks):
+def query_collection(question, n_results=1):
     question_embedding = gc.get_embedding([question])[0]
-    best_score_so_far = -1
-    best_chunk_so_far = None
-
-    for chunk in dic_chunks:
-        chunk_embedding = chunk["embedding"]
-        similarity = np.dot(question_embedding,chunk_embedding)/(np.linalg.norm(question_embedding)*np.linalg.norm(chunk_embedding))
-
-        if best_score_so_far < similarity:
-            best_score_so_far = similarity
-            best_chunk_so_far = chunk["chunk"]
-    return best_chunk_so_far
-
+    results = vs.collection.query(
+        query_embeddings=[question_embedding],
+        n_results=n_results
+    )
+    top_chunk = results['documents'][0][0]
+    return top_chunk
+    
 def menu():
     print("Welcome to the Note Q&A Bot!")
     print("1. Ask a question")
@@ -83,18 +80,6 @@ def file_opener(file_name):
             return None
     return text
 
-def save_dic_chunks_to_json(dic_chunks, file_name):
-    with open(file_name, 'w') as json_file:
-        json.dump(dic_chunks, json_file, indent=4)
-
-def load_dic_chunks_from_json(file_name):
-    try:
-        with open(file_name, 'r') as json_file:
-            dic_chunks = json.load(json_file)
-    except FileNotFoundError:
-        return None
-    return dic_chunks
-
 def save_file_name(file_name):
     with open("file_name.json", 'w') as f:
         json.dump(file_name, f)
@@ -115,20 +100,19 @@ def new_chunks_creator():
         only_chunk = [chunk["chunk"] for chunk in dic_chunks]
         embeddings = gc.get_embedding(only_chunk)
         new_dic_chunks = [{"Index":dic_chunks[i]["Index"], "chunk": dic_chunks[i]["chunk"], "embedding": embeddings[i]} for i in range(len(dic_chunks))]
-        save_dic_chunks_to_json(new_dic_chunks, "dic_chunks.json")
+        vs.add_chunks_to_collection(new_dic_chunks)
 
-        return new_dic_chunks
 def main():
-    loaded_dic_chunks = load_dic_chunks_from_json("dic_chunks.json")
+    
     file_name = load_file_name()
-    if loaded_dic_chunks is None or file_name is None:
-            new_dic_chunks = new_chunks_creator()
+    if  vs.collection.count() == 0 or file_name is None:
+         new_chunks_creator()
     else:
         choice = input(f"Found existing  data for file '{file_name}'. Do you want to use it? (y/n): ")
         if choice.lower() == "y":
-            new_dic_chunks = loaded_dic_chunks
+            pass
         elif choice.lower() == "n":
-            new_dic_chunks = new_chunks_creator()
+            new_chunks_creator()
         else:
             print("Invalid choice. Exiting the program.")
             return
@@ -136,7 +120,7 @@ def main():
         choice = menu()
         if choice == 1:
             question = input("Enter your question: ")
-            relevant_chunk = find_most_relevant(question, new_dic_chunks)
+            relevant_chunk = query_collection(question)
             answer = gc.ask_gemini(question, relevant_chunk)
             print("Answer:", answer)
         elif choice == 2:
