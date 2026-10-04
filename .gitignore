@@ -8,3 +8,5 @@ dic_chunks.json
 file_name.json
 chroma_testing.py
 chroma_db/
+known_files.json
+notes.pdf

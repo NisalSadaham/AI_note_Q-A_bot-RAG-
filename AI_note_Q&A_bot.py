@@ -44,11 +44,13 @@ def build_chunk_dicts(text):
         dic_chunks = [{"Index": index , "chunk":chunk}for index,chunk in enumerate(chunks)]
         return dic_chunks  
 
-def query_collection(question, n_results=1):
+def query_collection(question, n_results=1,filename=None):
     question_embedding = gc.get_embedding([question])[0]
     results = vs.collection.query(
         query_embeddings=[question_embedding],
+        where={"filename":filename} if filename else None,
         n_results=n_results
+
     )
     top_chunk = results['documents'][0][0]
     return top_chunk
@@ -56,7 +58,8 @@ def query_collection(question, n_results=1):
 def menu():
     print("Welcome to the Note Q&A Bot!")
     print("1. Ask a question")
-    print("2. Exit")
+    print("2. Add a new file to the collection")
+    print("3. Exit")
     try:
         choice = int(input("Enter your choice: "))
     except ValueError:
@@ -80,50 +83,64 @@ def file_opener(file_name):
             return None
     return text
 
-def save_file_name(file_name):
-    with open("file_name.json", 'w') as f:
-        json.dump(file_name, f)
+def save_known_files(known_file_names):
+    with open("known_files.json", 'w') as f:
+        json.dump(known_file_names, f)
 
-def load_file_name():
+def load_known_files():
     try:
-        with open("file_name.json", 'r') as f:
-            file_name = json.load(f)
+        with open("known_files.json", 'r') as f:
+            known_file_names = json.load(f)
     except FileNotFoundError:
-        return None
-    return file_name
+        return []
+    return known_file_names
 
 def new_chunks_creator():
+        known_file_names = load_known_files()  
         file_name = input("Enter the name of the note file: ")
-        save_file_name(file_name)
+        subject = input("Enter the subject of the note: ")
+        known_file_names.append({"filename": file_name,"subject":subject})
+        save_known_files(known_file_names)
         text = file_opener(file_name)
         dic_chunks = build_chunk_dicts(text)
         only_chunk = [chunk["chunk"] for chunk in dic_chunks]
         embeddings = gc.get_embedding(only_chunk)
         new_dic_chunks = [{"Index":dic_chunks[i]["Index"], "chunk": dic_chunks[i]["chunk"], "embedding": embeddings[i]} for i in range(len(dic_chunks))]
-        vs.add_chunks_to_collection(new_dic_chunks)
+        vs.add_chunks_to_collection(new_dic_chunks,subject=subject,file_name=file_name)
 
 def main():
-    
-    file_name = load_file_name()
-    if  vs.collection.count() == 0 or file_name is None:
-         new_chunks_creator()
-    else:
-        choice = input(f"Found existing  data for file '{file_name}'. Do you want to use it? (y/n): ")
-        if choice.lower() == "y":
-            pass
-        elif choice.lower() == "n":
-            new_chunks_creator()
-        else:
-            print("Invalid choice. Exiting the program.")
-            return
     while True:
         choice = menu()
         if choice == 1:
-            question = input("Enter your question: ")
-            relevant_chunk = query_collection(question)
-            answer = gc.ask_gemini(question, relevant_chunk)
-            print("Answer:", answer)
+            if vs.collection.count() > 0:
+                known_file_names = load_known_files()
+                try:
+                    if len(known_file_names) > 0:
+                        print("Existing file names found in the collection:")
+                        for index,files_names in enumerate(known_file_names):
+                            print((index+1),".",files_names["filename"],"(",files_names["subject"],")")
+                        
+                        file_index = int(input("Enter the number of file you want to select:"))
+                        file_chosen = known_file_names[file_index-1]["filename"]
+                    else:
+                        print("The notes collection is empty.")
+                        continue
+                    question = input("Enter your question: ")
+                    relevant_chunk = query_collection(question, filename=file_chosen)
+                    answer = gc.ask_gemini(question, relevant_chunk)
+                    print("Answer:", answer)
+                except ValueError:
+                    print("Please enter a number")
+                    continue
+                except IndexError:
+                    print("Please select an index within the given range")
+                    continue
+            else:
+                print("No data in the collection. Please add a new file first.")
+                continue
         elif choice == 2:
+            new_chunks_creator()
+        elif choice == 3:
             print("Exiting the program.")
             break
         elif choice is None:
@@ -133,4 +150,3 @@ def main():
             continue
 if __name__ == "__main__":
     main()
-
