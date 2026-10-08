@@ -10,3 +10,5 @@ chroma_testing.py
 chroma_db/
 known_files.json
 notes.pdf
+study.py
+main.py

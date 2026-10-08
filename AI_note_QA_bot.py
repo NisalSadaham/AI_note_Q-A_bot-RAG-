@@ -1,10 +1,15 @@
 import gemini_client as gc
-import numpy as np
 from pypdf import PdfReader
 import os
 import json
 import vector_store as vs
 
+class FileAlreadyExistsError(Exception):
+    pass
+class EmptyTextError(Exception):
+    pass
+class UnSupportedFileType(Exception):
+    pass
 
 def pdf_opener(file_name):
     try:
@@ -44,7 +49,7 @@ def build_chunk_dicts(text):
         dic_chunks = [{"Index": index , "chunk":chunk}for index,chunk in enumerate(chunks)]
         return dic_chunks  
 
-def query_collection(question, n_results=1,filename=None):
+def query_collection(question, n_results=3,filename=None):
     question_embedding = gc.get_embedding([question])[0]
     results = vs.collection.query(
         query_embeddings=[question_embedding],
@@ -52,8 +57,11 @@ def query_collection(question, n_results=1,filename=None):
         n_results=n_results
 
     )
-    top_chunk = results['documents'][0][0]
-    return top_chunk
+    chunk = results['documents'][0]
+    separator = "\n'----'\n"
+    return separator.join(chunk)
+
+    
     
 def menu():
     print("Welcome to the Note Q&A Bot!")
@@ -69,7 +77,7 @@ def menu():
 
 def file_extension_extractor(file_name):
     extension = os.path.splitext(file_name)[1]
-    return extension
+    return extension.lower()
 
 def file_opener(file_name):
     extension = file_extension_extractor(file_name)
@@ -79,8 +87,7 @@ def file_opener(file_name):
         case ".pdf":
             text = pdf_opener(file_name)
         case _:
-            print("Unsupported file type.")
-            return None
+            raise UnSupportedFileType("This file type is not supported")
     return text
 
 def save_known_files(known_file_names):
@@ -95,18 +102,22 @@ def load_known_files():
         return []
     return known_file_names
 
-def new_chunks_creator():
-        known_file_names = load_known_files()  
-        file_name = input("Enter the name of the note file: ")
-        subject = input("Enter the subject of the note: ")
-        known_file_names.append({"filename": file_name,"subject":subject})
-        save_known_files(known_file_names)
+def new_chunks_creator(file_name,subject):
+        known_file_names = load_known_files()
+        found = any(file['filename'] == file_name for file in known_file_names)
+        if found:
+            raise FileAlreadyExistsError("File already exists")
         text = file_opener(file_name)
+        if not text or not text.strip():
+            raise EmptyTextError("The text is Empty")
         dic_chunks = build_chunk_dicts(text)
         only_chunk = [chunk["chunk"] for chunk in dic_chunks]
         embeddings = gc.get_embedding(only_chunk)
         new_dic_chunks = [{"Index":dic_chunks[i]["Index"], "chunk": dic_chunks[i]["chunk"], "embedding": embeddings[i]} for i in range(len(dic_chunks))]
+        known_file_names.append({"filename": file_name, "subject": subject})
         vs.add_chunks_to_collection(new_dic_chunks,subject=subject,file_name=file_name)
+        save_known_files(known_file_names)
+        return len(new_dic_chunks)
 
 def main():
     while True:
@@ -139,7 +150,16 @@ def main():
                 print("No data in the collection. Please add a new file first.")
                 continue
         elif choice == 2:
-            new_chunks_creator()
+            file_name = input("Enter the name of the note file: ").strip().lower()
+            subject = input("Enter the subject of the note: ")
+            try:
+                new_chunks_creator(file_name=file_name,subject=subject)
+            except FileAlreadyExistsError as e:
+                print(e)
+            except EmptyTextError as e:
+                print(e)
+            except UnSupportedFileType as e:
+                print(e)
         elif choice == 3:
             print("Exiting the program.")
             break

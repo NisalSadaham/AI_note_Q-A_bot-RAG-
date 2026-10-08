@@ -1,0 +1,5 @@
+fastapi[standard]==0.142.2
+chromadb==1.5.9
+google-genai==2.27.0
+python-dotenv==1.2.4
+pypdf==6.19.0
