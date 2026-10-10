@@ -3,34 +3,82 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Study Assistant</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <title>Marginalia</title>
   </head>
+
   <body>
-    <div class="container">
-      <p id="question-paragraph">Select the file you want to use</p>
+    <nav>
+      <div>
+        <h2>Marginalia 🖊️</h2>
+        <h4>Ask anything from your notes</h4>
+      </div>
+    </nav>
+
+    <section class="top-section">
+      <div class="info-section">
+        <h1>Marginalia 🖊️</h1>
+
+        <p>
+          Marginalia is a small retrieval-augmented generation app. Upload your
+          notes as .txt or .pdf files, pick a file, and ask a question. The
+          answer comes from your own notes, found with vector search in ChromaDB
+          and written by Gemini.
+        </p>
+      </div>
+
+      <div class="upload-section">
+        <h2>Upload Your note First to get started</h2>
+
+        <!-- Subject -->
+        <label for="subject"> Enter the subject of the document </label>
+
+        <input type="text" id="subject" placeholder="Enter subject here" />
+
+        <div class="file-upload-area">
+          <label for="file-uploads" class="file-upload-box">
+            <span>Click here to select a file</span>
+            <small>.PDF or .TXT</small>
+          </label>
+
+          <input type="file" accept=".pdf,.txt" id="file-uploads" />
+        </div>
+
+        <button type="button" id="upload-button">Upload file</button>
+
+        <div id="file-upload-feedback"></div>
+
+        <!-- File selection -->
+      </div>
+    </section>
+
+    <section class="question-title">
+      <h2>ASK Question from AI</h2>
+    </section>
+
+    <section class="question-section">
+      <p id="instructions">
+        Select your uploaded file before asking a question
+      </p>
       <div id="drop_down">
         <select name="file-selection" id="file_selector">
-          <option selected value="">select file</option>
+          <option selected value="">select a file</option>
         </select>
       </div>
-      <label for="question">Enter your question here:</label>
       <input
         name="question_input"
         id="question"
         type="text"
         placeholder="Type here"
       />
-      <button id="question_submit" type="button">Ask AI</button>
-      <div id="answer_from_ai"></div>
-      <div id="file_upload">
-        <label for="subject">Enter the subject of the document</label>
-        <input type="text" id="subject" placeholder="Enter subject here" />
-        <label for="file-uploads">Upload your files from here</label>
-        <input type="file" accept=".pdf,.txt" id="file-uploads" />
-        <button type="button" id="upload-button">Upload file</button>
-        <div id="file-upload-feedback"></div>
+      <button id="question_submit" type="button">send message</button>
+
+      <div id="answer_from_ai">
+        <span>AI REPLY</span>
       </div>
-    </div>
+    </section>
+
+    <script src="script.js"></script>
   </body>
-  <script src="script.js"></script>
 </html>

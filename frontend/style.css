@@ -1,0 +1,311 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #000;
+    background-color: #fff;
+    -webkit-text-stroke: 0.2px black;
+}
+
+@font-face {
+    font-family: "JimNightShade";
+    src: url("./fonts/JimNightshade-Regular.ttf");
+    font-weight: 400;
+}
+
+
+
+nav {
+    height: 80px;
+    background-color:black;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-left: 58px;
+    position: fixed;
+}
+
+nav h2 {
+    font-size: 30px;
+    font-weight: 400;
+    color: #cfcfcf;
+    font-family:JimNightShade
+}
+
+nav h4{
+  font-size: 10px;
+  color: #cfcfcf;
+  padding: 2px;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+
+}
+
+
+.top-section {
+    min-height: 371px;
+    background-image: url("./images/bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    padding: 40px 42px;
+}
+
+
+.info-section h1 {
+    padding-top: 50px;
+    font-size: 80px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #fff;
+    font-family:JimNightShade
+    
+}
+
+.info-section p {
+    font-size: 21px;
+    line-height: 24px;
+    min-width: 800px;
+    font-weight: bold;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: #fff;
+
+}
+
+.upload-section {
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 450px;
+    border: #000;
+    border-radius: 20px;
+    background: #000;
+    width: 500px;;
+}
+
+.upload-section h2 {
+    margin-top:20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 25px;
+    font-weight: 400;
+    color: #d9d9d9;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    padding: 10px
+    
+}
+
+.upload-section label {
+    color: #cfcfcf;
+    font-size: 18px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#subject {
+    width: 300px;
+    height: 50px;
+    font-family:JimNightShade;
+    margin-top: 10px;
+
+    border: 1px solid #000;
+    border-radius: 20px;
+
+    padding: 0 15px;
+
+    background-color: #fff;
+}
+
+.file-upload-area {
+    margin-top: 15px;
+}
+
+#file-uploads {
+    display: none;
+}
+
+.file-upload-box {
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    width: 250px;
+    height: 150px;
+    border: 1px dashed white;
+    border-radius: 30px;
+
+    background-color: #030000;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    font-size: 25px;
+}
+
+.file-upload-box small {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.file-upload-box:hover {
+    background-color: #151414;
+}
+
+#upload-button {
+    font-family:JimNightShade;
+    width: 180px;
+    height: 38px;
+
+    margin-top: 20px;
+
+    border: none;
+    border-radius: 20px;
+
+    background-color: #fff;
+
+    font-size: 17px;
+
+    cursor: pointer;
+}
+
+#upload-button:hover{
+    background-color: #343333;
+}
+
+
+#file-upload-feedback {
+    margin-top: 10px;
+
+    font-size: 18px;
+}
+
+#drop_down {
+    margin-top: 18px;
+}
+
+#file_selector {
+    width: 250px;
+    height: 30px;
+    border: 1px solid #000;
+    border-radius: 30px;
+    background-color: #d9d9d9;
+    font-size: 25px;
+    padding: 0 20px;
+    margin-bottom:20px;
+}
+
+
+
+
+.question-title {
+    height: 40px;
+    background-color: #fdfdfd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.question-title h2 {
+    color: #050505;
+    font-size: 25px;
+    font-weight: 600;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.question-section {
+    height: 480px;
+    background-color: #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 28px;
+    width:100%;
+    font-weight: 600;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+#question {
+    width: 500px;
+    height: 60px;
+
+    border: none;
+    outline: none;
+
+    background-color: white;
+
+    border-radius: 35px;
+
+    padding: 0 58px;
+
+    font-size: 24px;
+    font-weight: 600;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#question:focus{
+    border: solid rgb(30, 29, 26);
+}
+
+#question::placeholder {
+    color: #000;
+    opacity: 0.5;
+}
+
+
+
+#question_submit {
+    width: 310px;
+    height: 42px;
+
+    margin-top: 23px;
+
+    border: none;
+    border-radius: 30px;
+
+    background-color: white;
+
+    font-size: 24px;
+
+    cursor: pointer;
+    font-weight: 600;
+    font-family:JimNightShade;
+}
+
+#question_submit:hover {
+    background-color: #cfcfcf;
+}
+
+
+
+#answer_from_ai {
+    width: 848px;
+    min-height: 202px;
+
+    margin-top: 21px;
+    background-color: rgb(3, 3, 3);
+    color: #fff;
+    padding: 36px;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 24px;
+
+    text-align: center;
+    border: 1px solid #fffdfd;
+    border-radius: 20px;
+}
+
+#answer_from_ai span {
+    display: block;
+}
+#instructions{
+    color: #fff;
+}

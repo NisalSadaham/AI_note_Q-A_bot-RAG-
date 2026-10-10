@@ -6,6 +6,8 @@ const upload_button = document.getElementById("upload-button")
 const user_file = document.getElementById("file-uploads")
 const file_upload_feedback = document.getElementById("file-upload-feedback")
 const subject = document.getElementById("subject")
+const fileInput = document.getElementById("file-uploads");
+const fileUploadBox = document.querySelector(".file-upload-box");
 
 upload_button.addEventListener("click",upload_file)
 
@@ -191,7 +193,21 @@ async function upload_file() {
 
 }  
 
+
+fileInput.addEventListener("change", function () {
+
+    if (fileInput.files.length > 0) {
+
+        const selectedFile = fileInput.files[0];
+
+        fileUploadBox.querySelector("span").textContent = selectedFile.name;
+
+        fileUploadBox.querySelector("small").textContent =
+            "Click to change file";
+
+    }
+
+});
+
 start_page()
-
-
 
